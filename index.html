@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>マンション購入シミュレーター</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>マンション購入シミュレーター</h1>
+            <p class="subtitle">購入から売却まで、トータル損益をシミュレーション</p>
+        </header>
+
+        <!-- 購入方法切替 -->
+        <div class="purchase-method-toggle">
+            <button id="cashBtn" class="toggle-btn active">現金購入</button>
+            <button id="loanBtn" class="toggle-btn">ローン購入</button>
+        </div>
+
+        <!-- タブナビゲーション -->
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="initial">初期費用</button>
+            <button class="tab-btn" data-tab="cashflow">購入後キャッシュフロー</button>
+            <button class="tab-btn" data-tab="sale">売却・トータル損益</button>
+        </div>
+
+        <!-- タブコンテンツ -->
+        <div class="tab-content">
+            <!-- 初期費用タブ -->
+            <div id="initial-tab" class="tab-panel active">
+                <h2>初期費用</h2>
+                <div class="form-section">
+                    <h3>購入価格</h3>
+                    <div class="input-group">
+                        <label>購入価格（円）</label>
+                        <input type="number" id="purchasePrice" value="50000000" min="0">
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>契約時費用</h3>
+                    <div class="input-group">
+                        <label>手付金（円）</label>
+                        <input type="number" id="earnestMoney" value="500000" min="0">
+                    </div>
+                    <div class="input-group">
+                        <label>仲介手数料（円）</label>
+                        <input type="number" id="brokerageFee" value="0" min="0">
+                    </div>
+                    <div class="input-group">
+                        <label>その他契約時費用（円）</label>
+                        <input type="number" id="otherContractFee" value="0" min="0">
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>決済時費用</h3>
+                    <div class="input-group">
+                        <label>頭金（円）</label>
+                        <input type="number" id="downPayment" value="10000000" min="0">
+                    </div>
+                    <div class="input-group">
+                        <label>登記費用（円）</label>
+                        <input type="number" id="registrationFee" value="200000" min="0">
+                    </div>
+                    <div class="input-group">
+                        <label>印紙代（円）</label>
+                        <input type="number" id="stampDuty" value="20000" min="0">
+                    </div>
+                    <div class="input-group">
+                        <label>その他決済時費用（円）</label>
+                        <input type="number" id="otherSettlementFee" value="0" min="0">
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>後日費用</h3>
+                    <div class="input-group">
+                        <label>その他後日費用（円）</label>
+                        <input type="number" id="otherLaterFee" value="0" min="0">
+                    </div>
+                </div>
+
+                <!-- ローン情報（ローン購入時のみ表示） -->
+                <div id="loanSection" class="form-section" style="display: none;">
+                    <h3>ローン情報</h3>
+                    <div class="input-group">
+                        <label>借入金額（円）</label>
+                        <input type="number" id="loanAmount" value="40000000" min="0">
+                    </div>
+                    <div class="input-group">
+                        <label>金利（%）</label>
+                        <input type="number" id="interestRate" value="0.5" step="0.01" min="0" max="10">
+                    </div>
+                    <div class="input-group">
+                        <label>返済年数（年）</label>
+                        <input type="number" id="loanYears" value="35" min="1" max="50">
+                    </div>
+                    <div class="input-group">
+                        <label>返済方法</label>
+                        <select id="repaymentMethod">
+                            <option value="equal">元利均等返済</option>
+                            <option value="principal">元金均等返済</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="summary-box">
+                    <h3>初期費用サマリー</h3>
+                    <div class="summary-item">
+                        <span>契約時費用合計:</span>
+                        <span id="totalContractFee">0</span>円
+                    </div>
+                    <div class="summary-item">
+                        <span>決済時費用合計:</span>
+                        <span id="totalSettlementFee">0</span>円
+                    </div>
+                    <div class="summary-item">
+                        <span>後日費用合計:</span>
+                        <span id="totalLaterFee">0</span>円
+                    </div>
+                    <div class="summary-item highlight">
+                        <span>自己資金支出総額:</span>
+                        <span id="totalInitialCost">0</span>円
+                    </div>
+                </div>
+            </div>
+
+            <!-- 購入後キャッシュフロータブ -->
+            <div id="cashflow-tab" class="tab-panel">
+                <h2>購入後キャッシュフロー</h2>
+                
+                <div class="form-section">
+                    <h3>保有期間</h3>
+                    <div class="input-group">
+                        <label>保有年数（年）</label>
+                        <input type="number" id="holdingYears" value="10" min="1" max="50">
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>居住スケジュール</h3>
+                    <div class="input-group">
+                        <label>居住開始年</label>
+                        <input type="number" id="residenceStartYear" value="1" min="1">
+                    </div>
+                    <div class="input-group">
+                        <label>居住終了年</label>
+                        <input type="number" id="residenceEndYear" value="3" min="1">
+                        <small>（この年まで居住、翌年から非居住）</small>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>年間固定費用</h3>
+                    <div class="input-group">
+                        <label>管理費（月額・円）</label>
+                        <input type="number" id="monthlyMaintenanceFee" value="20000" min="0">
+                    </div>
+                    <div class="input-group">
+                        <label>修繕積立金（月額・円）</label>
+                        <input type="number" id="monthlyRepairReserve" value="10000" min="0">
+                    </div>
+                    <div class="input-group">
+                        <label>固定資産税（年額・円）</label>
+                        <input type="number" id="annualPropertyTax" value="150000" min="0">
+                    </div>
+                    <div class="input-group">
+                        <label>保険料（年額・円）</label>
+                        <input type="number" id="annualInsurance" value="30000" min="0">
+                    </div>
+                    <div class="input-group">
+                        <label>費用上昇率（%/年）</label>
+                        <input type="number" id="costIncreaseRate" value="1" step="0.1" min="0">
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>修繕イベント（任意）</h3>
+                    <div class="input-group">
+                        <label>修繕イベント発生年</label>
+                        <input type="number" id="repairEventYear" value="0" min="0" placeholder="0=なし">
+                    </div>
+                    <div class="input-group">
+                        <label>修繕イベント費用（円）</label>
+                        <input type="number" id="repairEventCost" value="0" min="0">
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>税制優遇</h3>
+                    <div class="input-group">
+                        <label>住宅ローン控除（年額・円）</label>
+                        <input type="number" id="loanDeduction" value="0" min="0">
+                    </div>
+                    <div class="input-group">
+                        <label>控除適用年数</label>
+                        <input type="number" id="deductionYears" value="0" min="0" placeholder="0=なし">
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>賃貸運用（非居住期間）</h3>
+                    <div class="input-group">
+                        <label>想定家賃（月額・円）</label>
+                        <input type="number" id="monthlyRent" value="150000" min="0">
+                    </div>
+                    <div class="input-group">
+                        <label>空室率（%）</label>
+                        <input type="number" id="vacancyRate" value="5" step="0.1" min="0" max="100">
+                    </div>
+                    <div class="input-group">
+                        <label>賃貸管理費率（%）</label>
+                        <input type="number" id="rentalManagementRate" value="5" step="0.1" min="0" max="100">
+                    </div>
+                    <div class="input-group">
+                        <label>家賃上昇率（%/年）</label>
+                        <input type="number" id="rentIncreaseRate" value="0" step="0.1" min="0">
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>家賃節約オプション（居住期間）</h3>
+                    <div class="input-group">
+                        <label>
+                            <input type="checkbox" id="enableRentSaving">
+                            家賃節約を収益として計上する
+                        </label>
+                    </div>
+                    <div class="input-group">
+                        <label>想定節約家賃（月額・円）</label>
+                        <input type="number" id="monthlyRentSaving" value="150000" min="0" disabled>
+                    </div>
+                </div>
+
+                <div class="summary-box">
+                    <h3>年間キャッシュフロー推移</h3>
+                    <div id="cashflowChart" class="chart-container">
+                        <canvas id="cashflowCanvas"></canvas>
+                    </div>
+                    <div id="cashflowTable" class="table-container"></div>
+                </div>
+            </div>
+
+            <!-- 売却・トータル損益タブ -->
+            <div id="sale-tab" class="tab-panel">
+                <h2>売却・トータル損益</h2>
+
+                <div class="form-section">
+                    <h3>売却設定</h3>
+                    <div class="input-group">
+                        <label>売却価格算出方法</label>
+                        <select id="salePriceMethod">
+                            <option value="direct">直接入力</option>
+                            <option value="rate">価格上昇率から算出</option>
+                        </select>
+                    </div>
+                    <div class="input-group" id="salePriceDirect">
+                        <label>売却価格（円）</label>
+                        <input type="number" id="salePrice" value="50000000" min="0">
+                    </div>
+                    <div class="input-group" id="salePriceRate" style="display: none;">
+                        <label>価格上昇率（%/年）</label>
+                        <input type="number" id="priceIncreaseRate" value="0" step="0.1">
+                    </div>
+                    <div class="input-group">
+                        <label>仲介手数料率（%）</label>
+                        <input type="number" id="saleBrokerageRate" value="3" step="0.1" min="0" max="10">
+                    </div>
+                    <div class="input-group">
+                        <label>その他売却費用（円）</label>
+                        <input type="number" id="otherSaleCost" value="0" min="0">
+                    </div>
+                    <div class="input-group">
+                        <label>売却時の税コスト（円）</label>
+                        <input type="number" id="saleTaxCost" value="0" min="0">
+                    </div>
+                </div>
+
+                <div class="summary-box">
+                    <h3>トータル損益サマリー</h3>
+                    <div class="summary-item">
+                        <span>購入時自己資金支出:</span>
+                        <span id="summaryInitialCost">0</span>円
+                    </div>
+                    <div class="summary-item">
+                        <span>保有期間キャッシュフロー合計:</span>
+                        <span id="summaryHoldingCF">0</span>円
+                    </div>
+                    <div class="summary-item">
+                        <span>賃貸収益合計:</span>
+                        <span id="summaryRentalIncome">0</span>円
+                    </div>
+                    <div class="summary-item">
+                        <span>家賃節約合計:</span>
+                        <span id="summaryRentSaving">0</span>円
+                    </div>
+                    <div class="summary-item">
+                        <span>売却手取り:</span>
+                        <span id="summarySaleProceeds">0</span>円
+                    </div>
+                    <div class="summary-item highlight">
+                        <span>トータル損益:</span>
+                        <span id="summaryTotalProfit">0</span>円
+                    </div>
+                    <div class="summary-item">
+                        <span>ブレークイーブン年:</span>
+                        <span id="summaryBreakEvenYear">-</span>
+                    </div>
+                </div>
+
+                <div class="summary-box">
+                    <h3>累積キャッシュフロー推移</h3>
+                    <div id="cumulativeChart" class="chart-container">
+                        <canvas id="cumulativeCanvas"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
