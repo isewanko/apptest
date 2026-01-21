@@ -1,0 +1,11 @@
+{
+  "name": "apptest",
+  "version": "1.0.0",
+  "description": "マンション購入シミュレーター",
+  "scripts": {
+    "build": "echo 'No build step required for static site' && exit 0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT"
+}
