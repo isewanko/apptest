@@ -139,6 +139,11 @@ function calculateLoanInfo() {
             monthlyPayment = loanAmount * monthlyRate * Math.pow(1 + monthlyRate, totalMonths) / 
                            (Math.pow(1 + monthlyRate, totalMonths) - 1);
         }
+        // 年間返済額の計算
+        const annualPayment = monthlyPayment * 12;
+        for (let i = 0; i < loanYears; i++) {
+            annualPayments.push(annualPayment);
+        }
     } else {
         // 元金均等返済
         const principalPayment = loanAmount / totalMonths;
@@ -155,14 +160,6 @@ function calculateLoanInfo() {
         }
     }
 
-    // 年間返済額の計算
-    if (repaymentMethod === 'equal') {
-        const annualPayment = monthlyPayment * 12;
-        for (let i = 0; i < loanYears; i++) {
-            annualPayments.push(annualPayment);
-        }
-    }
-
     // ローン残高の計算
     const loanBalances = [];
     let remainingBalance = loanAmount;
@@ -173,18 +170,17 @@ function calculateLoanInfo() {
                 if (remainingBalance <= 0) break;
                 const interest = remainingBalance * monthlyRate;
                 const principal = monthlyPayment - interest;
-                remainingBalance -= principal;
+                remainingBalance = Math.max(0, remainingBalance - principal);
             }
         } else {
             const principalPayment = loanAmount / totalMonths;
             for (let month = 1; month <= 12; month++) {
                 const monthNum = (year - 1) * 12 + month;
                 if (monthNum > totalMonths || remainingBalance <= 0) break;
-                const interest = remainingBalance * monthlyRate;
-                remainingBalance -= principalPayment;
+                remainingBalance = Math.max(0, remainingBalance - principalPayment);
             }
         }
-        loanBalances.push(Math.max(0, remainingBalance));
+        loanBalances.push(remainingBalance);
     }
 
     return {
